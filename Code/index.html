@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>游戏选择页面</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="video-container">
+        <div class="video-overlay"></div>
+        <video autoplay muted loop id="background-video" playsinline>
+            <source src="cat.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    <div class="games-container">
+        <div class="game-buttons">
+            <a href="detective.html" class="game-button" data-game="detective">
+                <img src="images/great detective.webp" alt="大侦探">
+                <span>大侦探</span>
+            </a>
+            <a href="turtle.html" class="game-button" data-game="turtle">
+                <img src="images/turtle soup.webp" alt="海龟汤">
+                <span>海龟汤</span>
+            </a>
+            <a href="escape.html" class="game-button" data-game="escape">
+                <img src="images/escape room.webp" alt="密室逃脱">
+                <span>密室逃脱</span>
+            </a>
+            <a href="weird.html" class="game-button" data-game="weird">
+                <img src="images/Weird stories about rules.webp" alt="规则怪谈">
+                <span>规则怪谈</span>
+            </a>
+        </div>
+    </div>
+
+    <style>
+        .video-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, 
+                rgba(0,0,0,0.2) 0%,
+                rgba(0,0,0,0.3) 50%,
+                rgba(0,0,0,0.7) 100%
+            );
+            z-index: 1;
+        }
+
+        #background-video {
+            position: relative;
+            z-index: 0;
+        }
+
+        .game-button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255, 255, 255, 0.2),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .game-button:hover::before {
+            left: 100%;
+        }
+    </style>
+</body>
+</html>

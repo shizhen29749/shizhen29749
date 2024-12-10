@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密室逃脱 - 神秘实验室</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        .scene-container {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            background: #333;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .scene-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: rgba(52, 152, 219, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.2); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .inventory {
+            display: flex;
+            gap: 10px;
+            padding: 10px;
+            background: #333;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .inventory-item {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.3s;
+        }
+
+        .inventory-item:hover {
+            background: #555;
+            transform: translateY(-2px);
+        }
+
+        .inventory-item.selected {
+            border: 2px solid #e74c3c;
+        }
+
+        .message-log {
+            height: 150px;
+            overflow-y: auto;
+            background: #333;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .message.success { background: #27ae60; }
+        .message.error { background: #c0392b; }
+        .message.info { background: #2980b9; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .input-area input {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+            background: #444;
+            color: white;
+        }
+
+        .input-area button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+
+        .hint-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 5px 10px;
+            background: rgba(231, 76, 60, 0.8);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .combine-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #3498db;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+        }
+
+        .combine-mode .inventory-item {
+            border: 2px dashed #3498db;
+        }
+
+        .microscope-view {
+            background: #000;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: monospace;
+            font-size: 24px;
+            color: #3498db;
+        }
+
+        .periodic-table {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .element {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .element .symbol {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .element .number {
+            font-size: 12px;
+            color: #3498db;
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .control-button {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 5px;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .control-button:hover {
+            background: #2980b9;
+        }
+
+        /* 修改返回主页按钮样式 */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: #e74c3c;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+
+        .home-button:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <!-- 添加返回主页按钮 -->
+    <button class="home-button" onclick="confirmReturn()">
+        <span>🏠</span>返回主页
+    </button>
+
+    <div class="game-container">
+        <div class="scene-container" id="scene">
+            <button class="hint-button" onclick="showHint()">提示</button>
+        </div>
+
+        <div class="inventory" id="inventory">
+            <!-- 物品栏 -->
+        </div>
+
+        <div class="message-log" id="message-log">
+            <!-- 消息记录 -->
+        </div>
+
+        <button class="combine-button" onclick="toggleCombineMode()">合成模式</button>
+    </div>
+
+    <!-- 显微镜视图模态框 -->
+    <div class="modal" id="microscope-modal">
+        <div class="modal-content">
+            <h3>显微镜视图</h3>
+            <div class="microscope-view">
+                741
+            </div>
+            <p class="hint">这个数字似乎可以上下颠倒看...</p>
+            <button onclick="closeModal('microscope-modal')">关闭</button>
+        </div>
+    </div>
+
+    <!-- 元素周期表模态框 -->
+    <div class="modal" id="periodic-modal">
+        <div class="modal-content">
+            <h3>元素周期表片段</h3>
+            <div class="periodic-table">
+                <div class="element">
+                    <div class="symbol">Cu</div>
+                    <div class="number">29</div>
+                    <div>铜</div>
+                </div>
+                <div class="element">
+                    <div class="symbol">Fe</div>
+                    <div class="number">26</div>
+                    <div>铁</div>
+                </div>
+            </div>
+            <button onclick="closeModal('periodic-modal')">关闭</button>
+        </div>
+    </div>
+
+    <!-- 电脑终端模态框 -->
+    <div class="modal" id="computer-modal">
+        <div class="modal-content">
+            <h3>实验室终端</h3>
+            <p>请输入密码：</p>
+            <div class="input-area">
+                <input type="text" id="computer-input" maxlength="4" placeholder="输入4位数字">
+                <button onclick="checkComputerPassword()">确认</button>
+            </div>
+            <p class="hint">提示：两种元素的原子序数之和？</p>
+            <div class="modal-buttons">
+                <button class="control-button" onclick="closeModal('computer-modal')">返回</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加确认返回模态框 -->
+    <div class="modal" id="return-modal">
+        <div class="modal-content">
+            <h3>确认返回</h3>
+            <p>确定要返回主页吗？当前游戏进度将不会保存。</p>
+            <div class="modal-buttons">
+                <button class="control-button" onclick="returnToHome()">确定返回</button>
+                <button class="control-button" onclick="closeModal('return-modal')">继续游戏</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据
+        const gameData = {
+            scenes: [
+                {
+                    id: 'main',
+                    image: 'https://example.com/lab.jpg',
+                    description: '这是一个神秘的实验室，四周摆满了奇怪的仪器。',
+                    hotspots: [
+                        {
+                            id: 'desk',
+                            x: 20,
+                            y: 50,
+                            description: '一张实验台，上面有一些试管和烧杯。'
+                        },
+                        {
+                            id: 'computer',
+                            x: 50,
+                            y: 30,
+                            description: '一台老式电脑，屏幕上显示着一些数字。'
+                        },
+                        {
+                            id: 'cabinet',
+                            x: 80,
+                            y: 40,
+                            description: '一个上锁的药品柜，需要三位数字密码。'
+                        },
+                        {
+                            id: 'poster',
+                            x: 70,
+                            y: 20,
+                            description: '墙上贴着一张元素周期表。'
+                        },
+                        {
+                            id: 'microscope',
+                            x: 30,
+                            y: 60,
+                            description: '一台显微镜，镜筒下似乎有什么东西。'
+                        }
+                    ]
+                }
+            ],
+            items: {
+                blue_liquid: {
+                    name: '蓝色试剂',
+                    description: '一瓶神秘的蓝色液体，标签上写着"Cu"。',
+                    icon: '🧪'
+                },
+                red_liquid: {
+                    name: '红色试剂',
+                    description: '一瓶神秘的红色液体，标签上写着"Fe"。',
+                    icon: '🧪'
+                },
+                purple_solution: {
+                    name: '紫色溶液',
+                    description: '将蓝色和红色试剂混合产生的溶液。',
+                    icon: '🧪'
+                },
+                key_card: {
+                    name: '门禁卡',
+                    description: '一张磁条有些褪色的门禁卡。',
+                    icon: '💳'
+                },
+                usb_drive: {
+                    name: 'U盘',
+                    description: '一个看起来很旧的U盘。',
+                    icon: '💾'
+                }
+            },
+            combinations: {
+                "blue_liquid+red_liquid": {
+                    result: "purple_solution",
+                    message: "两种溶液混合，产生了紫色的溶液！"
+                }
+            },
+            hints: [
+                "试试检查实验台，可能会发现有用的试剂。",
+                "显微镜下的数字可以上下颠倒看。",
+                "注意观察元素的原子序数。",
+                "尝试混合不同颜色的试剂。"
+            ]
+        };
+
+        // 游戏状态
+        const gameState = {
+            currentScene: 'main',
+            inventory: new Set(),
+            discoveredItems: new Set(),
+            computerUnlocked: false,
+            cabinetUnlocked: false,
+            combineMode: false,
+            selectedItem: null,
+            hintsUsed: 0
+        };
+
+        // 初始化游戏
+        function initGame() {
+            createScene();
+            addMessage('欢迎来到神秘实验室！', 'info');
+            addMessage('这里似乎进行过一些奇怪的化学实验...', 'info');
+        }
+
+        // 创建场景
+        function createScene() {
+            const scene = gameData.scenes.find(s => s.id === gameState.currentScene);
+            const sceneContainer = document.getElementById('scene');
+            
+            // 设置场景背景
+            const img = document.createElement('img');
+            img.src = scene.image;
+            img.className = 'scene-image';
+            img.onerror = () => {
+                img.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
+                sceneContainer.style.background = '#333';
+            };
+            sceneContainer.appendChild(img);
+
+            // 添加热点
+            scene.hotspots.forEach(hotspot => {
+                const spot = document.createElement('div');
+                spot.className = 'hotspot';
+                spot.style.left = `${hotspot.x}%`;
+                spot.style.top = `${hotspot.y}%`;
+                spot.onclick = () => examineHotspot(hotspot.id);
+                sceneContainer.appendChild(spot);
+            });
+        }
+
+        // 检查热点
+        function examineHotspot(id) {
+            switch(id) {
+                case 'desk':
+                    if (!gameState.discoveredItems.has('blue_liquid')) {
+                        addMessage('你在实验台上发现了一瓶蓝色试剂！', 'success');
+                        addItem('blue_liquid');
+                        gameState.discoveredItems.add('blue_liquid');
+                    } else if (!gameState.discoveredItems.has('red_liquid')) {
+                        addMessage('继续搜索，你又发现了一瓶红色试剂！', 'success');
+                        addItem('red_liquid');
+                        gameState.discoveredItems.add('red_liquid');
+                    } else {
+                        addMessage('实验台上的其他器材看起来都很普通。', 'info');
+                    }
+                    break;
+                    
+                case 'computer':
+                    if (!gameState.computerUnlocked) {
+                        if (gameState.inventory.has('usb_drive')) {
+                            showModal('computer-modal');
+                        } else {
+                            addMessage('电脑需要插入U盘才能使用。', 'info');
+                        }
+                    } else {
+                        addMessage('电脑屏幕显示：将紫色溶液注入柜子的凹槽中。', 'info');
+                    }
+                    break;
+                    
+                case 'cabinet':
+                    if (!gameState.cabinetUnlocked) {
+                        if (gameState.inventory.has('purple_solution')) {
+                            addMessage('你将紫色溶液倒入柜子的凹槽，柜子发出咔嗒一声开了！', 'success');
+                            gameState.cabinetUnlocked = true;
+                            addMessage('你在柜子里找到了一张门禁卡！', 'success');
+                            addItem('key_card');
+                        } else {
+                            addMessage('柜子上有一个奇怪的凹槽，似乎需要倒入某种溶液。', 'info');
+                        }
+                    } else {
+                        addMessage('柜子已经打开了。', 'info');
+                    }
+                    break;
+                    
+                case 'poster':
+                    showModal('periodic-modal');
+                    break;
+                    
+                case 'microscope':
+                    if (!gameState.discoveredItems.has('usb_drive')) {
+                        showModal('microscope-modal');
+                        addMessage('显微镜底座上还藏着一个U盘！', 'success');
+                        addItem('usb_drive');
+                        gameState.discoveredItems.add('usb_drive');
+                    } else {
+                        showModal('microscope-modal');
+                    }
+                    break;
+            }
+        }
+
+        // 添加物品
+        function addItem(itemId) {
+            if (!gameState.inventory.has(itemId)) {
+                gameState.inventory.add(itemId);
+                const item = gameData.items[itemId];
+                const inventory = document.getElementById('inventory');
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                itemElement.innerHTML = `
+                    <span>${item.icon}</span>
+                    <span>${item.name}</span>
+                `;
+                itemElement.onclick = () => selectItem(itemId);
+                inventory.appendChild(itemElement);
+            }
+        }
+
+        // 选择物品
+        function selectItem(itemId) {
+            const item = gameData.items[itemId];
+            if (!gameState.combineMode) {
+                addMessage(`${item.description}`, 'info');
+                return;
+            }
+
+            const items = document.querySelectorAll('.inventory-item');
+            if (gameState.selectedItem === itemId) {
+                gameState.selectedItem = null;
+                items.forEach(item => item.classList.remove('selected'));
+            } else if (gameState.selectedItem) {
+                tryCombine(gameState.selectedItem, itemId);
+                gameState.selectedItem = null;
+                items.forEach(item => item.classList.remove('selected'));
+            } else {
+                gameState.selectedItem = itemId;
+                items.forEach((item, index) => {
+                    if (index === Array.from(gameState.inventory).indexOf(itemId)) {
+                        item.classList.add('selected');
+                    } else {
+                        item.classList.remove('selected');
+                    }
+                });
+            }
+        }
+
+        // 合成物品
+        function tryCombine(item1, item2) {
+            const combination = `${item1}+${item2}`;
+            const reverseCombination = `${item2}+${item1}`;
+            
+            if (gameData.combinations[combination] || gameData.combinations[reverseCombination]) {
+                const result = gameData.combinations[combination] || gameData.combinations[reverseCombination];
+                addMessage(result.message, 'success');
+                gameState.inventory.delete(item1);
+                gameState.inventory.delete(item2);
+                addItem(result.result);
+                updateInventory();
+            } else {
+                addMessage('这两个物品不能组合。', 'error');
+            }
+        }
+
+        // 更新物品栏
+        function updateInventory() {
+            const inventory = document.getElementById('inventory');
+            inventory.innerHTML = '';
+            gameState.inventory.forEach(itemId => {
+                const item = gameData.items[itemId];
+                const itemElement = document.createElement('div');
+                itemElement.className = 'inventory-item';
+                if (gameState.combineMode) {
+                    itemElement.classList.add('combine-mode');
+                }
+                itemElement.innerHTML = `
+                    <span>${item.icon}</span>
+                    <span>${item.name}</span>
+                `;
+                itemElement.onclick = () => selectItem(itemId);
+                inventory.appendChild(itemElement);
+            });
+        }
+
+        // 切换合成模式
+        function toggleCombineMode() {
+            gameState.combineMode = !gameState.combineMode;
+            gameState.selectedItem = null;
+            updateInventory();
+            addMessage(gameState.combineMode ? 
+                '进入合成模式：点击两个物品尝试组合它们' : 
+                '退出合成模式', 'info');
+        }
+
+        // 检查电脑密码
+        function checkComputerPassword() {
+            const input = document.getElementById('computer-input');
+            const password = input.value.trim();
+            
+            if (password === '55') { // Cu(29) + Fe(26) = 55
+                gameState.computerUnlocked = true;
+                addMessage('密码正确！电脑解锁了！', 'success');
+                addMessage('屏幕显示：��紫色溶液注入柜子的凹槽中。', 'info');
+                closeModal('computer-modal');
+            } else {
+                addMessage('密码错误，请再试一次。', 'error');
+                input.value = '';  // 清空输入框
+                input.focus();     // 重新聚焦输入框
+            }
+        }
+
+        // 显示模态框
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+
+        // 关闭模态框
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+            // 清空输入框
+            const input = document.getElementById('computer-input');
+            if (input) {
+                input.value = '';
+            }
+        }
+
+        // 显示提示
+        function showHint() {
+            const hint = gameData.hints[gameState.hintsUsed % gameData.hints.length];
+            addMessage(`提示：${hint}`, 'info');
+            gameState.hintsUsed++;
+        }
+
+        // 添加消息
+        function addMessage(text, type = 'info') {
+            const messageLog = document.getElementById('message-log');
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            messageLog.appendChild(message);
+            messageLog.scrollTop = messageLog.scrollHeight;
+        }
+
+        // 检查游戏是否完成
+        function checkGameComplete() {
+            if (gameState.inventory.has('key_card') && 
+                gameState.computerUnlocked && 
+                gameState.cabinetUnlocked) {
+                showSuccess();
+            }
+        }
+
+        // 显示成功界面
+        function showSuccess() {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.style.display = 'flex';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h2>恭喜通关！</h2>
+                    <p>你成功解开了所有谜题，找到了逃出实验室的方法！</p>
+                    <button onclick="location.reload()">再玩一次</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // 初始化游戏
+        window.addEventListener('load', initGame);
+
+        // 添加键盘事件监听
+        document.getElementById('computer-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkComputerPassword();
+            }
+        });
+
+        // 添加确认返回函数
+        function confirmReturn() {
+            showModal('return-modal');
+        }
+
+        // 添加返回主页函数
+        function returnToHome() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>海龟汤 - 诡秘推理</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* 诡异色调 */
+            --shadow-dark: #0a0a0f;
+            --shadow-medium: #1a1a24;
+            --shadow-light: #2a2a35;
+            --blood-dark: #660000;
+            --blood-light: #990000;
+            --mist-dark: #334455;
+            --mist-light: #445566;
+            --ghost-dark: #223344;
+            --ghost-light: #334455;
+            --accent-red: #cc0000;
+            --accent-purple: #660066;
+            
+            /* 文字颜色 */
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --text-accent: #ff3333;
+            
+            /* 特效 */
+            --glow-red: 0 0 10px rgba(255, 0, 0, 0.3);
+            --glow-purple: 0 0 15px rgba(102, 0, 102, 0.3);
+        }
+
+        @keyframes misty {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.7; }
+            100% { opacity: 0.3; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.8; }
+            5% { opacity: 0.5; }
+            10% { opacity: 0.8; }
+            15% { opacity: 0.4; }
+            20% { opacity: 0.8; }
+            100% { opacity: 0.8; }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Serif SC', serif;
+            background: var(--shadow-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+            background-image: 
+                radial-gradient(circle at 50% 50%, 
+                    rgba(102, 0, 0, 0.1) 0%,
+                    rgba(0, 0, 0, 0) 50%),
+                linear-gradient(to bottom,
+                    var(--shadow-dark),
+                    var(--shadow-medium));
+        }
+
+        .game-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--shadow-medium);
+            border: 1px solid rgba(255, 0, 0, 0.1);
+            padding: 2rem;
+            box-shadow: 
+                0 0 30px rgba(0, 0, 0, 0.5),
+                0 0 60px rgba(102, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                linear-gradient(45deg,
+                    transparent 0%,
+                    rgba(255, 0, 0, 0.03) 50%,
+                    transparent 100%);
+            pointer-events: none;
+            animation: misty 10s infinite;
+        }
+
+        .navigation {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 0, 0, 0.1);
+            padding-bottom: 1rem;
+            position: relative;
+        }
+
+        .nav-button {
+            padding: 0.8rem 1.5rem;
+            background: var(--shadow-light);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 0, 0, 0.1),
+                transparent
+            );
+            transition: 0.5s;
+        }
+
+        .nav-button:hover::before {
+            left: 100%;
+        }
+
+        .nav-button:hover {
+            border-color: rgba(255, 0, 0, 0.4);
+            box-shadow: var(--glow-red);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-button.active {
+            background: var(--blood-dark);
+            border-color: var(--blood-light);
+            box-shadow: var(--glow-red);
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 8px;
+            color: var(--text-primary);
+            text-shadow: 
+                0 0 10px rgba(255, 0, 0, 0.3),
+                0 0 20px rgba(255, 0, 0, 0.2),
+                0 0 30px rgba(255, 0, 0, 0.1);
+            animation: flicker 5s infinite;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            font-style: italic;
+        }
+
+        .case-description {
+            background: var(--ghost-dark);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            position: relative;
+            line-height: 2;
+            text-align: center;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+            animation: pulse 4s infinite ease-in-out;
+        }
+
+        .case-description::before,
+        .case-description::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+
+        .case-description::before {
+            top: 10px;
+            left: 10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .case-description::after {
+            bottom: 10px;
+            right: 10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .input-section {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .question-input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            background: var(--shadow-light);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .question-input:focus {
+            outline: none;
+            border-color: rgba(255, 0, 0, 0.4);
+            box-shadow: var(--glow-red);
+        }
+
+        .submit-button {
+            padding: 1rem 2rem;
+            background: var(--blood-dark);
+            border: 1px solid var(--blood-light);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-button:hover {
+            box-shadow: var(--glow-red);
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+
+        .hints {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            background: var(--ghost-dark);
+            position: relative;
+        }
+
+        .hint {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-left: 3px solid var(--blood-light);
+            background: var(--shadow-light);
+            font-style: italic;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .hint:hover {
+            transform: translateX(5px);
+            border-left-color: var(--accent-red);
+        }
+
+        .hint-icon {
+            color: var(--blood-light);
+            margin-right: 0.5rem;
+        }
+
+        .reasoning-section {
+            background: var(--ghost-dark);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .reasoning-input {
+            width: 100%;
+            min-height: 150px;
+            padding: 1rem;
+            background: var(--shadow-light);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+            transition: all 0.3s ease;
+        }
+
+        .reasoning-input:focus {
+            outline: none;
+            border-color: rgba(255, 0, 0, 0.4);
+            box-shadow: var(--glow-red);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .secondary-button {
+            padding: 0.8rem 1.5rem;
+            background: var(--shadow-light);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: var(--text-primary);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .secondary-button:hover {
+            border-color: rgba(255, 0, 0, 0.4);
+            box-shadow: var(--glow-red);
+        }
+
+        /* 添加诡异的装饰元素 */
+        .ghost-decoration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 30% 30%, 
+                    rgba(102, 0, 0, 0.05) 0%,
+                    transparent 60%),
+                radial-gradient(circle at 70% 70%, 
+                    rgba(102, 0, 102, 0.05) 0%,
+                    transparent 60%);
+            z-index: -1;
+            animation: misty 20s infinite alternate;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .game-container {
+                padding: 1rem;
+            }
+
+            .game-title {
+                font-size: 2rem;
+                letter-spacing: 4px;
+            }
+
+            .game-stats {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .input-container {
+                flex-direction: column;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="ghost-decoration"></div>
+    <div class="game-container">
+        <div class="navigation">
+            <button class="nav-button active">第一关</button>
+            <button class="nav-button">第二关</button>
+            <button class="nav-button">第三关</button>
+            <button class="nav-button" onclick="location.href='index.html'" style="margin-left: auto;">返回首页</button>
+        </div>
+
+        <div class="game-header">
+            <h1 class="game-title">海龟汤</h1>
+            <div class="game-stats">
+                <div class="game-stat">剩余提问：20</div>
+                <div class="game-stat">得分：100</div>
+            </div>
+        </div>
+
+        <div class="case-description">
+            一个男人走进酒吧，要了一杯水。酒保却拿出了一把枪指着他。男人说了声谢谢后离开了。
+        </div>
+
+        <div class="input-section">
+            <div class="input-container">
+                <input type="text" class="question-input" placeholder="输入你的问题（仅可回答是/否）">
+                <button class="submit-button">提问</button>
+            </div>
+        </div>
+
+        <div class="hints">
+            <div class="hint">
+                <span class="hint-icon">†</span>
+                游戏开始！你可以提出任何可用是/否回答的问题。
+            </div>
+            <div class="hint">
+                <span class="hint-icon">†</span>
+                每个问题都要仔细思考，抓住故事中的关键点。
+            </div>
+            <div class="hint">
+                <span class="hint-icon">†</span>
+                需要帮助时可以点击"获取提示"，但要注意把握节奏！
+            </div>
+        </div>
+
+        <div class="reasoning-section">
+            <textarea class="reasoning-input" placeholder="记录你的推理过程..."></textarea>
+            <div class="button-group">
+                <button class="secondary-button">获取提示</button>
+                <button class="submit-button">提交答案</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

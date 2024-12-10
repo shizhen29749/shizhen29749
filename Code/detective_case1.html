@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>神秘别墅谋杀案 - 调查中</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1c1714;
+            color: #e8d5c4;
+            font-family: 'Noto Serif SC', serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-image: 
+                linear-gradient(rgba(28, 23, 20, 0.95), rgba(28, 23, 20, 0.95)),
+                url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .game-header {
+            background: linear-gradient(to right, #3c2317, #4a2f24);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #8b5e3c;
+        }
+
+        .game-header h1 {
+            color: #d4a373;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .back-button {
+            background: rgba(60, 35, 23, 0.8);
+            color: #e8d5c4;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            border: 1px solid #8b5e3c;
+            transition: all 0.3s ease;
+        }
+
+        .back-button:hover {
+            background: rgba(74, 47, 36, 0.9);
+            transform: translateY(-2px);
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            padding: 20px;
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .main-content {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .scene-description {
+            background: rgba(60, 35, 23, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #8b5e3c;
+        }
+
+        .scene-description h2 {
+            color: #d4a373;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .scene-description p {
+            line-height: 1.8;
+            font-size: 1.1em;
+        }
+
+        .investigation-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .investigation-button {
+            background: rgba(60, 35, 23, 0.8);
+            color: #e8d5c4;
+            border: 1px solid #8b5e3c;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .investigation-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(139, 94, 60, 0.3) 0%, transparent 70%);
+            transform: scale(0);
+            transition: transform 0.3s ease-out;
+        }
+
+        .investigation-button:hover::before {
+            transform: scale(1);
+        }
+
+        .investigation-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .investigation-button h3 {
+            color: #d4a373;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .investigation-button p {
+            opacity: 0.9;
+            font-size: 1em;
+            line-height: 1.5;
+        }
+
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 300px;
+        }
+
+        .evidence-panel, .notebook-panel {
+            background: rgba(60, 35, 23, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid #8b5e3c;
+        }
+
+        .panel-title {
+            color: #d4a373;
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #8b5e3c;
+        }
+
+        .evidence-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .evidence-item {
+            background: rgba(74, 47, 36, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #8b5e3c;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .evidence-item:hover {
+            background: rgba(74, 47, 36, 0.8);
+            transform: translateX(5px);
+        }
+
+        .notebook-content {
+            min-height: 200px;
+            margin-bottom: 15px;
+        }
+
+        .note-entry {
+            background: rgba(74, 47, 36, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #8b5e3c;
+        }
+
+        .note-time {
+            color: #d4a373;
+            font-size: 0.9em;
+        }
+
+        .note-input {
+            width: 100%;
+            background: rgba(74, 47, 36, 0.6);
+            border: 1px solid #8b5e3c;
+            color: #e8d5c4;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: 'Noto Serif SC', serif;
+        }
+
+        .note-input:focus {
+            outline: none;
+            border-color: #d4a373;
+        }
+
+        .investigation-content {
+            display: none;
+            background: rgba(60, 35, 23, 0.8);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #8b5e3c;
+        }
+
+        .clue-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .clue-item {
+            background: rgba(74, 47, 36, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #8b5e3c;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .clue-item:hover {
+            background: rgba(74, 47, 36, 0.8);
+            transform: translateX(5px);
+        }
+
+        .clue-detail {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(60, 35, 23, 0.8);
+            border-radius: 8px;
+            border: 1px solid #8b5e3c;
+        }
+
+        .back-to-options {
+            background: linear-gradient(45deg, #3c2317, #4a2f24);
+            color: #e8d5c4;
+            border: 1px solid #8b5e3c;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: none;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-options:hover {
+            background: linear-gradient(45deg, #4a2f24, #5a3f34);
+            transform: translateY(-2px);
+        }
+
+        .accuse-button {
+            background: linear-gradient(45deg, #8b0000, #a52a2a);
+            color: #e8d5c4;
+            border: none;
+            padding: 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            display: none;
+            border: 1px solid #d4a373;
+            transition: all 0.3s ease;
+        }
+
+        .accuse-button:hover {
+            background: linear-gradient(45deg, #a52a2a, #c41e3a);
+            transform: translateY(-2px);
+        }
+
+        /* 自定义滚动条 */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #2a1f1c;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #8b5e3c;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a67c5b;
+        }
+
+        /* 选中文本样式 */
+        ::selection {
+            background: #8b5e3c;
+            color: #e8d5c4;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-header">
+        <h1>神秘别墅谋杀案</h1>
+        <a href="detective.html" class="back-button">返回案件列表</a>
+    </div>
+
+    <div class="game-container">
+        <div class="main-content">
+            <div class="scene-description">
+                <h2>案件现场</h2>
+                <p>一个风雨交加的夜晚，富商张先生被发现在自己的别墅书房内死亡。现场保持完好，没有打斗痕迹，但书桌上的文件散乱不堪。作为资深侦探的你接到警方通知后立即赶到现场。</p>
+                <p>当晚在场的几个人都有作案可能：死者的儿子、最近频繁拜访��律师、以及尽职的管家。你需要通过细致的调查来找出真相。</p>
+            </div>
+
+            <div class="investigation-grid">
+                <button class="investigation-button" data-area="desk">
+                    <h3>检查书桌</h3>
+                    <p>书桌上散落着文件和物品，或许能找到重要线索</p>
+                </button>
+                <button class="investigation-button" data-area="blood">
+                    <h3>分析现场</h3>
+                    <p>仔细观察死者周围的环境和痕迹</p>
+                </button>
+                <button class="investigation-button" data-area="butler">
+                    <h3>询问管家</h3>
+                    <p>了解案发当晚的情况和可疑之处</p>
+                </button>
+                <button class="investigation-button" data-area="window">
+                    <h3>检查窗户</h3>
+                    <p>查看是否有外部入侵的痕迹</p>
+                </button>
+            </div>
+
+            <div class="investigation-content"></div>
+            <button class="back-to-options">返回调查选项</button>
+            <button class="accuse-button">
+                <h3>进行结案</h3>
+                <p>当你收集足够的证据后，可以开始指认凶手</p>
+            </button>
+        </div>
+
+        <div class="sidebar">
+            <div class="evidence-panel">
+                <h2 class="panel-title">已收集证据</h2>
+                <div class="evidence-list"></div>
+            </div>
+            <div class="notebook-panel">
+                <h2 class="panel-title">推理笔记</h2>
+                <div class="notebook-content"></div>
+                <input type="text" class="note-input" placeholder="记录你的推理想法...">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 调查数据
+        const investigationData = {
+            desk: {
+                title: "书桌调查",
+                clues: [
+                    {
+                        id: "documents",
+                        name: "散落的文件",
+                        description: "书桌上散落着多份文件，其中包括一份未完成的遗嘱修改稿。",
+                        detail: "遗嘱显示死者打算将大部分财产捐赠给慈善机构，这个决定可能引起了家人的不满。"
+                    },
+                    {
+                        id: "coffee",
+                        name: "咖啡杯",
+                        description: "桌上有一个打翻的咖啡杯，咖啡洒在了一些文件上。",
+                        detail: "咖啡杯上有唇印，显示死者生前喝过这杯咖啡。咖啡已经凉了，说明死亡时间在饮用咖啡后不久。"
+                    },
+                    {
+                        id: "pen",
+                        name: "钢笔",
+                        description: "死者常用的钢笔掉在地上，笔尖沾有血迹。",
+                        detail: "这支钢笔可能是凶器，需要进行进一步的法医检验。"
+                    }
+                ]
+            },
+            blood: {
+                title: "现场分析",
+                clues: [
+                    {
+                        id: "pattern",
+                        name: "血迹分布",
+                        description: "血迹呈放射状分布，主要集中在书桌附近。",
+                        detail: "血迹分布表明死者是在站立状态下受到攻击，之后倒在书桌旁。"
+                    },
+                    {
+                        id: "footprints",
+                        name: "血脚印",
+                        description: "地毯上有微弱的血脚印，从书桌延伸到门口。",
+                        detail: "脚印大小适中，可能属于凶手，显示凶手在案发后从正门离开。"
+                    }
+                ]
+            },
+            butler: {
+                title: "管家证词",
+                clues: [
+                    {
+                        id: "testimony",
+                        name: "管家陈述",
+                        description: "管家称案发时他在厨房准备夜宵，听到楼上有争吵声。",
+                        detail: "管家的证词提到争吵发生在晚上10点左右，他随后听到重物倒地的声音。"
+                    },
+                    {
+                        id: "visitor",
+                        name: "访客信息",
+                        description: "管家提到当晚死者的儿子和律师都来访过。",
+                        detail: "律师是来讨论遗嘱修改的事情，而儿子似乎对此非常不满。"
+                    }
+                ]
+            },
+            window: {
+                title: "窗户检查",
+                clues: [
+                    {
+                        id: "lock",
+                        name: "窗锁状态",
+                        description: "窗户从内侧锁住，没有撬动痕迹。",
+                        detail: "这说明凶手可能不是从窗户进入，更可能是屋内的人所为。"
+                    },
+                    {
+                        id: "raindrops",
+                        name: "雨水痕迹",
+                        description: "窗台内侧有少量雨水，但地毯上没有水渍。",
+                        detail: "说明案发时窗户可能短暂开启过，但很快就被关上了。"
+                    }
+                ]
+            }
+        };
+
+        // 游戏状态
+        const gameState = {
+            evidence: new Set(),
+            notes: [],
+            investigatedAreas: new Set(),
+            requiredEvidence: 6,
+            canAccuse: false
+        };
+
+        // 显示调查内容
+        function showInvestigationContent(area) {
+            const data = investigationData[area];
+            const contentArea = document.querySelector('.investigation-content');
+            const backButton = document.querySelector('.back-to-options');
+            const investigationGrid = document.querySelector('.investigation-grid');
+
+            contentArea.innerHTML = `
+                <h3>${data.title}</h3>
+                <div class="clue-list">
+                    ${data.clues.map(clue => `
+                        <div class="clue-item" data-clue-id="${clue.id}">
+                            <h4>${clue.name}</h4>
+                            <p>${clue.description}</p>
+                            <div class="clue-detail">${clue.detail}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            contentArea.style.display = 'block';
+            investigationGrid.style.display = 'none';
+            backButton.style.display = 'block';
+
+            document.querySelectorAll('.clue-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const clueId = item.dataset.clueId;
+                    const clueDetail = item.querySelector('.clue-detail');
+                    clueDetail.style.display = clueDetail.style.display === 'block' ? 'none' : 'block';
+                    addEvidence(area, clueId);
+                });
+            });
+
+            gameState.investigatedAreas.add(area);
+        }
+
+        // 添加证据
+        function addEvidence(area, clueId) {
+            const evidenceKey = `${area}-${clueId}`;
+            if (!gameState.evidence.has(evidenceKey)) {
+                const clue = investigationData[area].clues.find(c => c.id === clueId);
+                gameState.evidence.add(evidenceKey);
+
+                const evidenceList = document.querySelector('.evidence-list');
+                const evidenceItem = document.createElement('div');
+                evidenceItem.className = 'evidence-item';
+                evidenceItem.textContent = clue.name;
+                evidenceList.appendChild(evidenceItem);
+
+                addNote(`发现新线索：${clue.name} - ${clue.description}`);
+                
+                checkForAccusation();
+            }
+        }
+
+        // 添加笔记
+        function addNote(text) {
+            const note = {
+                text,
+                timestamp: new Date().toLocaleTimeString()
+            };
+            gameState.notes.push(note);
+            updateNotes();
+        }
+
+        // 更新笔记显示
+        function updateNotes() {
+            const notebookContent = document.querySelector('.notebook-content');
+            notebookContent.innerHTML = gameState.notes.map(note => `
+                <div class="note-entry">
+                    <span class="note-time">${note.timestamp}</span>
+                    <p>${note.text}</p>
+                </div>
+            `).join('');
+        }
+
+        // 检查是否可以进行结案
+        function checkForAccusation() {
+            if (gameState.evidence.size >= gameState.requiredEvidence && !gameState.canAccuse) {
+                gameState.canAccuse = true;
+                const accuseButton = document.querySelector('.accuse-button');
+                accuseButton.style.display = 'block';
+                addNote('你已经收集了足够的证据，可以开始进行结案了。');
+            }
+        }
+
+        // 初始化游戏
+        function initGame() {
+            document.querySelectorAll('.investigation-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const area = button.dataset.area;
+                    showInvestigationContent(area);
+                });
+            });
+
+            document.querySelector('.back-to-options').addEventListener('click', () => {
+                document.querySelector('.investigation-content').style.display = 'none';
+                document.querySelector('.investigation-grid').style.display = 'grid';
+                document.querySelector('.back-to-options').style.display = 'none';
+            });
+
+            document.querySelector('.note-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && e.target.value.trim()) {
+                    addNote(e.target.value.trim());
+                    e.target.value = '';
+                }
+            });
+
+            document.querySelector('.accuse-button').addEventListener('click', () => {
+                window.location.href = 'detective_case1_accuse.html';
+            });
+
+            addNote('调查开始：你来到了案发现场，开始收集线索...');
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', initGame);
+    </script>
+</body>
+</html> 
